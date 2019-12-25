@@ -35,9 +35,9 @@
 1. ツール→ライブラリマネージャで、`LoRa by Sandeep Mistry`を追加
 
 ### コンパイルと書き込み
-1. LoRaBot.inoを開く
-1．スケッチ→検証・コンパイルでコンパイル
-2. スケッチ→マイコンボードに書き込むでArduinoへ書き込み
+1. LoRaBot.inoを開く  
+2．スケッチ→検証・コンパイルでコンパイル  
+3. スケッチ→マイコンボードに書き込むでArduinoへ書き込み  
 
 ### スマートフォンとの接続
 1. スマホに[USBシリアル端末](https://play.google.com/store/apps/details?id=jp.sugnakys.usbserialconsole&hl=ja)をインストール
