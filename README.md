@@ -2,7 +2,7 @@
 
 [Arduino LoRa](https://github.com/sandeepmistry/arduino-LoRa/blob/master/README.md)を使ったLoRaのChatbotです。
 
-##ハードウェア
+## ハードウェア
 
  * [Semtech SX1276/77/78/79](http://www.semtech.com/apps/product.php?pn=SX1276)を使ったボードで動作します。:
    * [BSFrance LoRa32u4](https://bsfrance.fr/lora-long-range/1311-BSFrance-LoRa32u4-1KM-Long-Range-Board-Based-Atmega32u4-433MHz-LoRA-RA02-Module.html)
@@ -27,7 +27,7 @@
 
 ### Arduino IDEにLoRa32u4ボードを追加
 1. ファイル→環境設定で、追加のボードマネージャのURLに以下を追加
-   https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
+   `https://adafruit.github.io/arduino-board-index/package_adafruit_index.json`
 2. ツール→ボードでAdaFruit Feather32u4を選択
 3. ツール→書込装置でArduinoISPを選択
 
@@ -57,15 +57,19 @@ USB端末ソフトからメッセージを送ると438.2MHzでLoRa変調でメッセージを送ります。
 メッセージの送信が完了すると以下のように表示されます。
 ```sh
  Send: <送信したメッセージ>
-メッセージを受信すると以下の
+```
+メッセージを受信すると以下のように表示されます。
 ```sh
  Recv(<RSSI値>,<SNR値>,<周波数エラー値>) : <受信したメッセージ> 
 ```
 Bot側では送られて来たメッセージに受信時のRSSI(信号強度)、SNR、周波数エラー値を加えてオウム返しします。
+```sh
+Recv(-47,10.50,-2212):DE JL1NIE UR RSSI=-45 SNR=10.75 Ferr=2002 : DE JL1NIE これはテストですこれはテストです
+```
 
 ## コマンド
 ### 周波数の設定
-運用周波数をHzで指定します。指定できる範囲は438MHz-439MHz(全電波形式)です。
+運用周波数をHzで指定します。指定できる範囲は438MHz-439MHz(全電波形式の範囲)です。
 デフォルト値は438.2MHzです。
 ```sh
  set freq 432000000
@@ -85,6 +89,7 @@ Bot側では送られて来たメッセージに受信時のRSSI(信号強度)、SNR、周波数エラー値を加
 ```
 ### 帯域幅(BW)の指定
 チャープスペクトラムの帯域幅を指定します。0-8の範囲です。
+帯域幅が広いほど高速に送信できますがSNRでは不利になります。
 デフォルト値は4(31.25kH)です。
 ```sh
  set bw 4
@@ -112,7 +117,7 @@ set mode NORM
 |:----:|:----:|
 |NORM | 通常モード|
 |BOT  | 送られたメッセージにRSSI/SNR等を付けて返す|
-|CONT | 0fillされた255byteパケットを連続送信します|
+|CONT | 0fillされたパケット(255byte)を連続送信します|
 
 ### 自局コールサインの指定
 自局のコールサインを指定します。パケット先頭には必ず自局コールサインが入ります。
@@ -121,14 +126,21 @@ set call コールサイン
 ```
 
 ###リモート端末の設定
-LoRaでは送信側・受信側のSF/BW等が合っていないと交信することができません。
-自局と共に相手局側のパラメータを同時に変更するコマンドです。
+LoRaでは送信側・受信側のSF/BW等のパラメータが合致していないと交信することができません。
+`rset`は自局と共に相手局側のパラメータを同時に変更するコマンドです。
 ```sh
 rset コマンド パラメータ
 ```
-コマンド・パラメータはsetと同じです。
+コマンド・パラメータは`set`と同じです。
 リモート側端末は新たに変更されたパラメータでテスト送信を行いますので
 ローカル端末で正しく受信できるか確認してください。
-
+```sh
+rset sf 11
+Set Spreading Factor = 11
+Recv(-49,4.50,-2147):DE JL1NIE VVV VVV VVV
+Recv(-50,5.50,-2130):DE JL1NIE VVV VVV VVV
+Recv(-41,10.00,-2114):DE JL1NIE VVV VVV VVV
+Recv(-52,8.25,-2088):DE JL1NIE (done.)
+```
 ## ライセンス
  Apache License 2.0で配布します。
