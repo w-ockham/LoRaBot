@@ -21,18 +21,18 @@
 | DIO0 | 7 |
 
 
-`NSS`,`NRESET,`DIO0`は`LoRa.setPins(csPin, resetPin, irqPin)`. で接続することが出来ます。ボードによってピン接続を変更して下さい。
+`NSS`,`NRESET`,`DIO0`は`LoRa.setPins(csPin, resetPin, irqPin)`. で接続することが出来ます。ボードによってピン接続を変更して下さい。
 
 ## インストール方法
 
 ### Arduino IDEにLoRa32u4ボードを追加
-1. ファイル→環境設定で、追加のボードマネージャのURLに以下を追加
+1. ファイル→環境設定で、追加のボードマネージャのURLに以下を追加  
    `https://adafruit.github.io/arduino-board-index/package_adafruit_index.json`
-2. ツール→ボードでAdaFruit Feather32u4を選択
-3. ツール→書込装置でArduinoISPを選択
+2. ツール→ボードで`AdaFruit Feather32u4`を選択
+3. ツール→書込装置で`ArduinoISP`を選択
 
 ### Arduino LoRaライブラリの追加
-1. ツール→ライブラリマネージャで、LoRa by Sandeep Mistryを追加
+1. ツール→ライブラリマネージャで、`LoRa by Sandeep Mistry`を追加
 
 ### コンパイルと書き込み
 1. LoRaBot.inoを開く
@@ -42,7 +42,9 @@
 ### スマートフォンとの接続
 1. スマホに[USBシリアル端末](https://play.google.com/store/apps/details?id=jp.sugnakys.usbserialconsole&hl=ja)をインストール
 2. [OTGケーブル](https://www.amazon.co.jp/dp/B012V56C8K)とmicroUSBケーブルを使ってLoRa32u4をスマホに接続
-3. シリアルポートの設定でボーレート9600 データビット8 パリティnone ストップビット1 フロー制御offを選択
+3. シリアルポートの設定で  
+  ボーレート9600 データビット8 パリティnone ストップビット1 フロー制御off  
+  を選択
 4. 接続の設定で送信フォームの表示、改行コードCR+LFを選択
 
 ## 使い方
