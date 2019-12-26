@@ -1,6 +1,6 @@
 # LoRaBot
 
-[Arduino LoRa](https://github.com/sandeepmistry/arduino-LoRa/blob/master/README.md)を使ったLoRaのChatbotです。
+[Arduino LoRa](https://github.com/sandeepmistry/arduino-LoRa/blob/master/README.md)を使い、430MHz帯でチャットを行うことができるArduinoスケッチです。
 
 ## ハードウェア
 
@@ -48,27 +48,35 @@
 4. 接続の設定で送信フォームの表示、改行コードCR+LFを選択
 
 ## 使い方
-2台のLoRa32u4に書き込みます。サーバ側をモバイルバッテリ、クライアント側をスマホに接続します。  
-デフォルトではBotモードで起動するので、クライアント側は以下のコマンドでノーマルモードにしてください。
+2台のLoRa32u4に書き込みます。リモート側をモバイルバッテリ等に、ローカル側をスマホに接続します。  
+デフォルトではBotモードで起動します。クライアント側は以下のコマンドでノーマルモードにしてください。
 ```sh
 set mode norm
 ```
 USB端末ソフトからメッセージを送ると438.2MHzでLoRa変調でメッセージを送ります。  
 （保証認定を受け免許されるまでは必ずダミーロード等を使って実験して下さい）  
-デフォルトではSF=10、BW=31.25kHz TxPower = 20dBmの設定になっています。
+デフォルトでは周波数438.2MHz、SF=10、BW=31.25kHz 出力20dBm(100mW)の設定になっています。
+```sh
+JL1NIE/1> set
+Freq = 438200000
+SF = 10
+BW = 31250
+TX Power = 20
+```
+ターミナルからメッセージを入れ、最後に改行(CR/LF)を入力して下さい。
 メッセージの送信が完了すると以下のように表示されます。
 ```sh
- Send: <送信したメッセージ>
+ <コールサイン> '>' <送信したメッセージ>
 ```
-メッセージを受信すると以下のように表示されます。
+相手局からメッセージを受信すると以下のように表示されます。
 ```sh
- Recv(<RSSI値>,<SNR値>,<周波数エラー値>) : <受信したメッセージ> 
-```
+ <受信したメッセージ> '<' <相手局コールサイン> (<RSSI値>, <SNR値>, <周波数エラー値>)
+ ```
 Bot側では送られて来たメッセージに受信時のRSSI(信号強度)、SNR、周波数エラー値を加えてオウム返しします。
 ```sh
-これはテストですこれはテストです
-Send: DE JL1NIE/1 これはテストですこれはテストです
-Recv(-47,10.50,-2212):DE JL1NIE UR RSSI=-45 SNR=10.75 Ferr=2002 : DE JL1NIE/1 これはテストですこれはテストです
+JL1NIE/1> こんにちは！これはテストです。
+JL1NIE/1>
+UR RSSI=-46 SNR=13.50 Ferr=-1980 Msg=JL1NIE/1 こんにちは！これはテストです。 <JL1NIE(-48, 14.25, 1811)
 ```
 
 ## コマンド
@@ -120,8 +128,9 @@ set mode NORM
 |モード| 動作 |
 |:----:|:----:|
 |NORM | 通常モード|
-|BOT  | 送られたメッセージにRSSI/SNR等を付けて返す|
+|BOT  | 送られたメッセージにRSSI/SNR等を付けて返すBOTになります|
 |CONT | 0fillされたパケット(255byte)を連続送信します|
+|VERB | 出力メッセージを冗長にします|
 
 ### 自局コールサインの指定
 自局のコールサインを指定します。パケット先頭には必ず自局コールサインが入ります。
@@ -139,12 +148,16 @@ rset コマンド パラメータ
 リモート側端末は新たに変更されたパラメータでテスト送信を行いますので
 ローカル端末で正しく受信できるか確認してください。
 ```sh
-rset sf 11
-Set Spreading Factor = 11
-Recv(-49,4.50,-2147):DE JL1NIE VVV VVV VVV
-Recv(-50,5.50,-2130):DE JL1NIE VVV VVV VVV
-Recv(-41,10.00,-2114):DE JL1NIE VVV VVV VVV
-Recv(-52,8.25,-2088):DE JL1NIE (done.)
+JL1NIE/1> rset sf 8
+Set Spreading Factor = 8
+JL1NIE/1>
+VVV VVV VVV  <JL1NIE(RSSI=-44 SNR=11.75 Ferr=1949)
+JL1NIE/1>
+VVV VVV VVV  <JL1NIE(RSSI=-44 SNR=12.25 Ferr=1949)
+JL1NIE/1>
+VVV VVV VVV  <JL1NIE(RSSI=-33 SNR=12.00 Ferr=1949)
+JL1NIE/1>
+done. <JL1NIE(RSSI=-41 SNR=11.50 Ferr=1951)
 ```
 ## ライセンス
  Apache License 2.0で配布します。
