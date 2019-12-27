@@ -113,7 +113,7 @@ void do_command(String buffer) {
   }
   
   if ( cmds[1] == "FREQ" ) {
-    int freq = cmds[2].toInt();
+    long freq = cmds[2].toInt();
     if ( freq >= freq_low && freq <= freq_high ) {
       frequency = freq;
       LoRa.setFrequency(frequency);
