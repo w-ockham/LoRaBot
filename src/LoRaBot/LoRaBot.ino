@@ -240,6 +240,7 @@ void loop() {
   }
   if (remote_set) {
    remote_set =false;
+   Serial.println(remote_command);
    do_command(remote_command);
    for ( int i = 0; i < 3 ; i++) {
     delay(2000);
@@ -262,18 +263,20 @@ void onReceive(int packetSize) {
   while (LoRa.available()) {
     incoming += (char)LoRa.read();
   }
+  
+  if ( incoming.indexOf("rset") == 0) {
+    remote_set = true;
+    remote_command = incoming;
+    return;
+  };
+
   String hiscall = incoming.substring(0,incoming.indexOf(" "));
   String message = incoming.substring(incoming.indexOf(" ")+1);
   String rssi = String(LoRa.packetRssi());
   String snr = String(LoRa.packetSnr());
   String ferr = String(LoRa.packetFrequencyError());
   String rprt = "RSSI=" + rssi + " SNR=" + snr + " Ferr=" + ferr;
-
-  if ( incoming.indexOf("rset") >= 0) {
-    remote_set = true;
-    remote_command = incoming;
-  };
-
+  
   Serial.println("");
   if ( verbose ) 
     Serial.println(message + " <" + hiscall + "(" + rprt + ")");
