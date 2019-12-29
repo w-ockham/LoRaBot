@@ -93,14 +93,10 @@ void do_command(String buffer) {
   
   int index = split(buffer, ' ', cmds);
   if ( index == 1 ) {
-    String s = String(frequency);
-    Serial.println("Freq = " + s);
-    s = String(spreadingFactor);
-    Serial.println("SF = " + s);
-    s = String(bandWidthTable[bandWidth]);
-    Serial.println("BW = " + s);
-    s = String(power);
-    Serial.println("TX Power = " + s);
+    Serial.println("Freq=" + String(frequency));
+    Serial.println("SF=" + String(spreadingFactor));
+    Serial.println("BW=" + String(bandWidth) + "　(" + String(bandWidthTable[bandWidth]) + "Hz)");
+    Serial.println("TXpower=" + String(power));
     return;
   } else if ( index != 3 ) {
     if ( cmds[1] == "INIT" ) {
@@ -194,6 +190,15 @@ void do_command(String buffer) {
   }
 }
 
+void Send_Message(String message) {
+  Serial.print(mycall + ">:");
+  LoRa.beginPacket();
+  LoRa.print(mycall + ">:" + message);
+  LoRa.endPacket();
+  Serial.println(message);
+  LoRa.receive();
+}
+
 void loop() {
   char c;
   if ( Serial.available() ) {
@@ -201,15 +206,12 @@ void loop() {
        if ( c == '\r' ) {
           Serial.read();// Skip LF
           if ( line_buffer.indexOf("rset") == 0){
-              LoRa.beginPacket();
-              LoRa.print(line_buffer);
-              LoRa.endPacket();
-              LoRa.receive();
+              Send_Message(line_buffer);
               do_command(line_buffer);
           } else if ( line_buffer.indexOf("set") == 0) {
               do_command(line_buffer);
           } else {
-            if ( mode == MODE_CONT ) {
+            if ( mode == MODE_CONT && line_buffer.indexOf("send") == 0) {
               Serial.println("Sending 255 bytes of Zero...");
               for (int i = 0; i < 128; i++ ) {
                 LoRa.beginPacket();
@@ -222,36 +224,22 @@ void loop() {
               };
               Serial.println("done.");
               LoRa.receive();
-            } else {
-              String msg = mycall + " " +line_buffer;
-              LoRa.beginPacket();
-              LoRa.print(msg);
-              LoRa.endPacket();
-              if ( verbose )
-                Serial.println("Send: " + msg);
-              LoRa.receive();
-            }
+            } else 
+            Send_Message(line_buffer);
           }
-          Serial.print(mycall + "> ");   
           line_buffer = "";
-       } else {
-        line_buffer += c;
-       }
+       } else 
+       line_buffer += c;
   }
+  
   if (remote_set) {
    remote_set =false;
-   Serial.println(remote_command);
+   Serial.println("Remote:" + remote_command);
    do_command(remote_command);
    for ( int i = 0; i < 3 ; i++) {
     delay(2000);
-    LoRa.beginPacket();
-    LoRa.print(mycall + " VVV VVV VVV ");
-    LoRa.endPacket();
+    Send_Message("VVV VVV VVV");
    }
-   LoRa.beginPacket();
-   LoRa.print(mycall + " " + "done.");
-   LoRa.endPacket();
-   LoRa.receive();
   }
 }
 
@@ -264,29 +252,26 @@ void onReceive(int packetSize) {
     incoming += (char)LoRa.read();
   }
   
-  if ( incoming.indexOf("rset") == 0) {
+  String hiscall = incoming.substring(0,incoming.indexOf(">:"));
+  String message = incoming.substring(incoming.indexOf(">:")+2);
+   
+  if ( message.indexOf("rset") == 0) {
     remote_set = true;
-    remote_command = incoming;
+    remote_command = message;
     return;
   };
-
-  String hiscall = incoming.substring(0,incoming.indexOf(" "));
-  String message = incoming.substring(incoming.indexOf(" ")+1);
+  
   String rssi = String(LoRa.packetRssi());
   String snr = String(LoRa.packetSnr());
   String ferr = String(LoRa.packetFrequencyError());
-  String rprt = "RSSI=" + rssi + " SNR=" + snr + " Ferr=" + ferr;
+  String rprt = "RSSI=" + rssi + ",SNR=" + snr + ",Ferr=" + ferr;
   
-  Serial.println("");
   if ( verbose ) 
-    Serial.println(message + " <" + hiscall + "(" + rprt + ")");
+    Serial.println(hiscall + "(" + rprt + ")<:" + message);
   else
-    Serial.println(message  + " <" + hiscall + "("+rssi+", "+snr+", "+ferr+")");
-  Serial.print(mycall + "> ");
+    Serial.println(hiscall + "("+rssi+","+snr+","+ferr+")<:" + message);
+    
   if ( mode == MODE_BOT && !hiscall.equalsIgnoreCase(mycall)) {
-    LoRa.beginPacket();
-    LoRa.print(mycall + " UR "+ rprt + " Msg=" + incoming);
-    LoRa.endPacket();
-    LoRa.receive();
+    Send_Message("Hi " + mycall + " UR Rprt "+ rprt + ". UR Msg " + incoming + ".");
   }     
 }
