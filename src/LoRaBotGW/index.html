@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LoRaBot ver0.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="stylesheets/bootstrap.css">
+    <link href="/open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="javascripts/jquery-3.4.1.js"></script>
+    <script src="javascripts/bootstrap.bundle.js"></script>
+    <div class="header clearfix">
+      <h4 class="text-muted">&nbsp LoRaBot Chat&nbsp </h4>
+    </div>
+    <div id="message_list" class="container bg-white" style="height:85vh;overflow:auto;border:2px solid #aaa;padding:2px;-webkit-overflow-scrolling:touch">
+    </div>
+    <div class="container" style="padding-top:4px">
+      <form id="message_form" class="form-inline container" action="#">
+	<div class="form-row">
+	  <div class="form-group">
+	    <input id="input_msg" type="text" class="form-control" autocomplete="off" style="width:60vw;"/>
+	  </div>
+	  <div class="form-group">
+	    <button class="btn-sm btn-primary" type="submit">Send</button>
+	    <button class="btn-sm btn-secondary oi oi-cog" type="button" data-toggle="modal" data-target="#modal-param"></button>
+	  </div>
+	</div>
+      </form>
+    </div>
+    <div class="modal" id="modal-param" tabindex="-1" role="dialog" aria-labelledby="staticModalLabel" aria-hidden="true" data-show="true" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+	<div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Preference</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&#215;</span>
+          </button>
+          </div><!-- /modal-header -->
+          <div class="modal-body">
+          </div>
+	  <div class="form">
+	    <div class="form-group">
+	      <label for="freq" style="width:180px;">&nbsp&nbsp Frequency &nbsp&nbsp</label>
+	      <input type="text" class"form-control mb-2" style="width:180px;" id="freq" placeholder="438200000">
+	    </div>
+	    <div class="form-group">
+	      <label for="select-bw" style="width:180px;">&nbsp&nbsp Bandwidth &nbsp&nbsp</label>
+	      <select id="select-bw" class="custom-select custom-select-sm" style="width:100px;">
+		<option value="7.8KHz">7.8KHz</option>
+		<option value="10.4KHz">10.4KHz</option>
+		<option value="15.6KHz">15.6KHz</option>
+		<option value="20.8KHz">20.8KHz</option>
+		<option value="31.25KHz">31.25KHz</option>
+		<option value="41.7KHz">41.7KHz</option>
+		<option value="62.5KHz">62.5KHz</option>
+		<option value="125KHz">125KHz</option>
+		<option value="250KHz">250KHz</option>
+	      </select>
+	    </div>
+	  <div class="form-group">
+	      <label for="select-sf" style="width:180px;">&nbsp&nbsp Spreading Factor &nbsp&nbsp</label>
+	      <select id="select-sf" class="custom-select custom-select-sm" style="width:100px;">
+		<option value="6">6</option>
+		<option value="7">7</option>
+		<option value="8">8</option>
+		<option value="9">9</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+	      </select>
+	    </div>
+	  <div class="form-group">
+	      <label for="select-pwr" style="width:180px;">&nbsp&nbsp TX Power &nbsp&nbsp</label>
+	      <select id="select-pwr" class="custom-select custom-select-sm" style="width:100px;">
+		<option value="2">2dBm</option>
+		<option value="4">4dBm</option>
+		<option value="8">8dBm</option>
+		<option value="12">12dBm</option>
+		<option value="17">17dBm</option>
+		<option value="20">20dBm</option>
+	      </select>
+	    </div>
+	  </div>
+	  <div class="form-group">
+	    <label for="callsign" style="width:180px;">&nbsp&nbsp Callsign</label>
+	    <input type="text" class="form-control mb-2" id="callsign" style="width:150px;" placeholder="Your Call">
+	  </div>
+	  <div class="form-group">
+	    <label class="form-check-label" for="rest" style="width:200px">&nbsp&nbsp Set Remote Parameter</label>
+	    <input class="form-check-input" type="checkbox" id="rset">
+	  </div>
+          <div class="modal-footer">
+	    <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+	</div> <!-- /.modal-content -->
+      </div> <!-- /.modal-dialog -->
+    </div> <!-- /.modal -->
+
+    <script>
+      function clock() {
+	  var now = new Date()
+	  var timestr = ('0'+now.getHours()).slice(-2) + ":" + ('0'+now.getMinutes()).slice(-2)  + ":" + ('0'+ now.getSeconds()).slice(-2);
+	  return timestr;
+      }
+      
+      var socketio = io().connect();
+      $(function(){
+          $('#message_form').submit(function(){
+	      if ($('#input_msg').val() == "")
+		  return false;
+            socketio.emit('message', $('#input_msg').val());
+            $('#input_msg').val('');
+              return false;
+          });
+          socketio.on('message',function(msg){
+	      obj = JSON.parse(msg);
+	      t = clock();
+	      body = '<div class="media-body">'
+	      if (obj.Type == "Send") {
+		  body = body + '<div class="bg-primary text-white">&nbsp<strong>' + obj.Call + '</strong>'
+		  body = body + '&nbsp&nbsp<span class="badge badge-info oi oi-clock">'+ t + '</span></div>'
+		  body = body + '<div class="bg-light text-black">'+ obj.Mesg + "</div>";
+	      } else if (obj.Type == "Recv") {
+		  body = body + '<div class="bg-success text-white">&nbsp<strong>' + obj.Call + '</strong>'
+		  body = body + '&nbsp&nbsp<span class="badge badge-info oi oi-clock">' + t  + '</span>'
+		  body = body + '&nbsp&nbsp<span class="badge badge-info oi oi-signal">RSSI:'+ obj.RSSI
+		  body = body + '&nbsp&nbsp SNR:'+ obj.SNR  + '</span>'
+
+		  body = body + '</div>'
+		  body = body + '<div class="bg-light text-black">'+ obj.Mesg + "</div>";
+	      } else if (obj.Type == "Prop") {
+		  body = body + '<div class="bg-warning text-white"><strong>LoRa Parameters.</strong></div>'
+		  body = body + '<div class="bg-light text-black">'+ msg + "</div>";
+	      }
+	      body = body + "</div>";
+	      $('#message_list').append('<div class="media"> '+ body + '</div><hr/>');
+	      var last = $('#message_list :last-child')
+	      last[last.length-1].scrollIntoView(false);
+          });
+      });
+      </script>
+  </body>
+</html>
