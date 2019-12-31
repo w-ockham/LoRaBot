@@ -33,6 +33,11 @@ var connectLoRaBot = function() {
 	console.log('LoRaBot connected.');
     });
 
+    botSerial.on('error', function () {
+	console.log('LoRaBot can not connect.');
+	process.exit();
+    });
+
     botSerial.on('close', function () {
 	console.log('LoRaBot disconnected.');
 	botSerial.resume();

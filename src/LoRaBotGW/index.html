@@ -200,11 +200,18 @@
 		command = $('#input_msg').val();
 		if ( command == "")
 		    return false;
+
+		if ( callsign == "" ) {
+		    callsign = window.prompt("Enter your callsign:","");
+		    if ( callsign == "") {
+			alert("canceled");
+			return;
+		    }
+		}
 		if ( command.match(/set/) )
 		    socketio.emit('message', command);
 		else {
-		    if ( callsign != "" )
-			socketio.emit('message', "set call " + callsign);
+		    socketio.emit('message', "set call " + callsign);
 		    socketio.emit('message', command);
 		}
 		$('#input_msg').val('');
