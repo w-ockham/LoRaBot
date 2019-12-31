@@ -136,7 +136,13 @@
 	function getPreference() {
 	    socketio.emit('message','set');
 	}
-		
+	function insertText(str) {
+	    var val = document.getElementById("input_msg").value;
+	    if ( val == "" )
+		document.getElementById("input_msg").value = str + " ";
+	    else
+		document.getElementById("input_msg").value = val + " " + str;
+	}
 	function clickOK() {
 	    new_freq = document.getElementById("freq").value;
 	    new_call = document.getElementById("callsign").value;
@@ -239,12 +245,12 @@
 		    body = body + '<div class="bg-light text-black">'+ obj.Mesg + "</div>";
 
 		} else if (obj.Type == "Recv") {
-
-		    body = body + '<div class="bg-success text-white">&nbsp<strong>' + obj.Call + '</strong>'
+		    body = body + '<div class="bg-success text-white">'
+		    body = body + '<a onClick="insertText(\''+obj.Call+'\')">&nbsp<strong>' + obj.Call + '</strong></a>'
 		    body = body + '&nbsp&nbsp<span class="badge badge-info oi oi-clock">' + t  + '</span>'
-		    body = body + '&nbsp&nbsp<span class="badge badge-info oi oi-signal">RSSI:'+ obj.RSSI
-		    body = body + '&nbsp&nbsp SNR:'+ obj.SNR  + '</span>'
-
+		    body = body + '&nbsp&nbsp<a class="badge badge-info oi oi-signal" onClick="insertText(\'RSSI:'+obj.RSSI+' SNR:'+obj.SNR+'\')">'
+		    body = body + 'RSSI:'+ obj.RSSI + '&nbsp&nbsp SNR:'+ obj.SNR  + '</a>'
+		    body = body + '&nbsp&nbsp<a class="badge badge-info" onClick="insertText(\''+obj.Call+' RRR\')">RRR</a>'
 		    body = body + '</div>'
 		    body = body + '<div class="bg-light text-black">'+ obj.Mesg + "</div>";
 
