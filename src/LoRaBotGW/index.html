@@ -95,7 +95,7 @@
 	  </div>
           <div class="modal-footer">
 	    <button type="button" class="btn btn-default" onClick="clickOK()" data-dismiss="modal">OK</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-default" onClick="clickCancel()" data-dismiss="modal">Cancel</button>
           </div>
 	</div> <!-- /.modal-content -->
       </div> <!-- /.modal-dialog -->
@@ -109,14 +109,30 @@
 	var txpower = 20
 	var callsign = ""
 	var socketio = io().connect();
-	var debug_mode = false;
-	
+	var debug_mode = true; //false;
+
+	function revertParam() {
+	    document.getElementById("callsign").value = callsign;
+	    document.getElementById("freq").value = frequency;
+	    document.getElementById("select-sf").selectedIndex = spreadfactor - 6;
+	    document.getElementById("select-bw").selectedIndex = bandwidth;
+	    
+	    for (var id = 0; id < 6; id++ )
+		if (txpower <= powertable[id])
+		    break;
+	    document.getElementById("select-pwr").selectedIndex =  id;
+	}
+	    
 	function clock() {
 	    var now = new Date()
 	    var timestr = ('0'+now.getHours()).slice(-2) + ":" + ('0'+now.getMinutes()).slice(-2)  + ":" + ('0'+ now.getSeconds()).slice(-2);
 	    return timestr;
 	}
 
+	function clickCancel() {
+	    revertParam();
+	}
+	
 	function clickOK() {
 	    new_freq = document.getElementById("freq").value;
 	    new_call = document.getElementById("callsign").value;
@@ -136,16 +152,7 @@
 	    if ( rsetfl ) {
 		if (changed > 1) {
 		    alert("Too many parameters have been changed.");
-		    
-		    document.getElementById("freq").value = frequency;
-		    document.getElementById("select-sf").selectedIndex = spreadfactor - 6;
-		    document.getElementById("select-bw").selectedIndex = bandwidth;
-
-		    for (var id = 0; id < 6; id++ )
-			if (txpower <= powertable[id])
-			    break;
-		    document.getElementById("select-pwr").selectedIndex =  id;
-
+		    revertParam();
 		    return;
 		}
 		command = "rset ";
