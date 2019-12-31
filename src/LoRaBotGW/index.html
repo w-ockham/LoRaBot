@@ -23,7 +23,7 @@
 	  </div>
 	  <div class="form-group">
 	    &nbsp&nbsp<button class="btn-sm btn-primary" type="submit">Send</button>
-	    &nbsp<button class="btn-sm btn-secondary oi oi-cog" type="button" data-toggle="modal" data-target="#modal-param"></button>
+	    &nbsp<button class="btn-sm btn-secondary oi oi-cog" type="button" data-toggle="modal" onClick="getPreference()" data-target="#modal-param"></button>
 	  </div>
 	</div>
       </form>
@@ -133,6 +133,10 @@
 	    revertParam();
 	}
 	
+	function getPreference() {
+	    socketio.emit('message','set');
+	}
+		
 	function clickOK() {
 	    new_freq = document.getElementById("freq").value;
 	    new_call = document.getElementById("callsign").value;
@@ -281,7 +285,6 @@
             });
 	});
 	socketio.emit('message','set mode norm');
-	socketio.emit('message','set');
       </script>
   </body>
 </html>
