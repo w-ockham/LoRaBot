@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * LoRaBot Serial HTTP Gateway
  * 2019/12/30 JL1NIE
@@ -42,6 +43,7 @@ var connectLoRaBot = function() {
 connectLoRaBot();
 
 var reconnectLoRaBot = function() {
+    process.exit();
     setTimeout(function() {
 	console.log('Reconnect LoRaBot');
 	connectLoRaBot();

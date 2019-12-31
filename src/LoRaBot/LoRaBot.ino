@@ -187,7 +187,7 @@ void do_command(String buffer) {
         bandWidth = bw;
         String bws = String(bandWidthTable[bw]);
         LoRa.setSignalBandwidth(bandWidthTable[bw]);
-        EmitProp("BW",bws);
+        EmitProp("BW",String(bandWidth));
         return;
     }
     EmitErr(cmds[2]);
