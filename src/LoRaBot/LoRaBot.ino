@@ -81,7 +81,6 @@ int split(String buf, char delim, String *dst) {
 }
 
 String param(String property,String value) {
-  value.replace("\"","\\\"");
   String val= "\""+property+"\":\""+ value +"\"";
   return val;
 }
@@ -94,9 +93,12 @@ void println(String msg) {
 }
 
 void EmitSendMsg(String call,String msg) {
-  String s = "{" + param("Type","Send") + ",";
-  s = s + param("Call",call) + "," + param("Mesg",msg) + "}";
-  println(s);
+  print("{" + param("Type","Send") + ",");
+  print(param("Call",call) + ",");
+  msg.replace("\"","\\\"");
+  print("\"Mesg\":");
+  print("\""+ msg + "\"");
+  println("}");
 }
 
 void EmitRecvMsg(String call,String rssi,String snr,String ferr,String msg) {
@@ -105,7 +107,9 @@ void EmitRecvMsg(String call,String rssi,String snr,String ferr,String msg) {
   print(param("RSSI",rssi) + ",");
   print(param("SNR",snr) + ",");
   print(param("Ferr",ferr) + ",");
-  print(param("Mesg",msg));
+  msg.replace("\"","\\\"");
+  print("\"Mesg\":");
+  print("\""+msg+"\"");
   println("}");  
 }
 
@@ -226,7 +230,8 @@ void do_command(String buffer) {
 
 void Send_Message(String message) {
   LoRa.beginPacket();
-  LoRa.print(mycall + ">:" + message);
+  LoRa.print(mycall+">:");
+  LoRa.print(message);
   LoRa.endPacket();
   EmitSendMsg(mycall,message);
   LoRa.receive();

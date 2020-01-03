@@ -13,8 +13,8 @@ var fs = require('fs')
 var https = require('https')
 var http = require('http')
 var options = {
-    key: fs.readFileSync('./server.key'),
-    cert: fs.readFileSync('./server.pem')
+    key: fs.readFileSync('/home/pi/LoRaBot/server.key'),
+    cert: fs.readFileSync('/home/pi/LoRaBot/server.pem')
 }
 
 app.use(express.static(path.join(__dirname, 'public')));

@@ -154,7 +154,7 @@
 	function getGPSSetter(position) {
 	    geotext = "https://www.google.com/maps/search/?api=1&query="+ position.coords.latitude + ","+ position.coords.longitude;
 	    socketio.emit('message', "set call " + callsign);
-	    socketio.emit('message','<a href="'+geotext+'" target="_blank"><span class="oi oi-map"></a>');
+	    socketio.emit('message','<a href="'+geotext+'" target="_blank"><span class="oi oi-map">My location</a>');
 	}
 	
 	function clickOK() {
