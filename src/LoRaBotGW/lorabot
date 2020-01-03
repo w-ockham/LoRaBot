@@ -4,12 +4,30 @@
  * 2019/12/30 JL1NIE
  */
 
-var express = require('express');
-var app = express();
-var http = require('http').Server(app)
+var express = require('express')
+var app = express()
 var path = require('path')
-const io = require('socket.io')(http)
 const PORT = process.env.PORT || 3000
+
+var fs = require('fs')
+var https = require('https')
+var http = require('http')
+var options = {
+    key: fs.readFileSync('./server.key'),
+    cert: fs.readFileSync('./server.pem')
+}
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/node_modules')));
+
+var server = https.createServer(options,app)
+//var server = http.createServer(app)
+
+
+const io = require('socket.io')(https).listen(server)
+//const io = require('socket.io').listen(server)
+server.listen(PORT);
+
 const SerialPort = require('serialport')
 const Readline = SerialPort.parsers.Readline
 const LoRaPort = '/dev/ttyACM0'
@@ -71,10 +89,4 @@ io.on('connection',function(socket){
 	port_write(msg + '\r\n');
     });
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, '/node_modules')));
-http.listen(PORT);
-
-
 

@@ -81,7 +81,9 @@ int split(String buf, char delim, String *dst) {
 }
 
 String param(String property,String value) {
-  return String("\""+property+"\":\""+value+"\"");
+  value.replace("\"","\\\"");
+  String val= "\""+property+"\":\""+ value +"\"";
+  return val;
 }
 
 void print(String msg) {
@@ -93,23 +95,18 @@ void println(String msg) {
 
 void EmitSendMsg(String call,String msg) {
   String s = "{" + param("Type","Send") + ",";
-  if (msg == "") {
-    s = s + param("Call",call) + "}";
-    println(s);
-  } else {
-    s = s + param("Call",call) + "," + param("Mesg",msg) + "}";
-    println(s);
-  }
+  s = s + param("Call",call) + "," + param("Mesg",msg) + "}";
+  println(s);
 }
 
 void EmitRecvMsg(String call,String rssi,String snr,String ferr,String msg) {
-  String s = "{" + param("Type","Recv") + ",";
-  s = s + param("Call",call) + ",";
-  s = s + param("RSSI",rssi) + ",";
-  s = s + param("SNR",snr) + ",";
-  s = s + param("Ferr",ferr) + ",";
-  s = s + param("Mesg",msg);
-  println(s + "}");  
+  print("{" + param("Type","Recv") + ",");
+  print(param("Call",call) + ",");
+  print(param("RSSI",rssi) + ",");
+  print(param("SNR",snr) + ",");
+  print(param("Ferr",ferr) + ",");
+  print(param("Mesg",msg));
+  println("}");  
 }
 
 void EmitProp(String prop,String val) {
@@ -299,10 +296,7 @@ void onReceive(int packetSize) {
   String snr = String(LoRa.packetSnr());
   String ferr = String(LoRa.packetFrequencyError());
   String rprt = "RSSI=" + rssi + ",SNR=" + snr + ",Ferr=" + ferr;
-  
-  //if ( verbose ) 
-  //  Serial.println(hiscall + "(" + rprt + ")<:" + message);
-  //else
+ 
   EmitRecvMsg(hiscall,rssi,snr,ferr,message);
     
   if ( mode == MODE_BOT && !hiscall.equalsIgnoreCase(mycall)) {
