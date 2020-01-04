@@ -305,6 +305,12 @@ void onReceive(int packetSize) {
   EmitRecvMsg(hiscall,rssi,snr,ferr,message);
     
   if ( mode == MODE_BOT && !hiscall.equalsIgnoreCase(mycall)) {
-    Send_Message("Hi " + hiscall + " UR Rprt "+ rprt + ". UR Msg " + incoming + ".");
+    if ( message.indexOf("RRR") >= 0) {
+      Send_Message(hiscall + " 73");
+    } else if ( message.indexOf("CQ") >= 0) {
+      Send_Message(hiscall + " DE " + mycall );
+    } else {
+      Send_Message("Hi " + hiscall + " UR "+ rprt + ". Msg=" + message);
+    }
   }     
 }
