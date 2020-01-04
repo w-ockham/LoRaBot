@@ -278,7 +278,7 @@
 		    body = body + '<div class="bg-success text-white">'
 		    body = body + '<a onClick="insertText(\''+obj.Call+'\')">&nbsp<strong>' + obj.Call + '</strong></a>'
 		    body = body + '&nbsp&nbsp<span class="badge badge-info oi oi-clock">' + t  + '</span>'
-		    body = body + '&nbsp&nbsp<a class="badge badge-info oi oi-signal" onClick="insertText(\'RSSI:'+obj.RSSI+' SNR:'+obj.SNR+'\')">'
+		    body = body + '&nbsp&nbsp<a class="badge badge-info oi oi-signal" onClick="insertText(\''+ obj.Call +' RSSI:'+obj.RSSI+' SNR:'+obj.SNR+'\')">'
 		    body = body + 'RSSI:'+ obj.RSSI + '&nbsp&nbsp SNR:'+ obj.SNR  + '</a>'
 		    body = body + '&nbsp&nbsp<a class="badge badge-info" onClick="insertText(\''+obj.Call+' RRR\')">RRR</a>'
 		    body = body + '</div>'
