@@ -2,12 +2,15 @@
 
 [Arduino LoRa](https://github.com/sandeepmistry/arduino-LoRa/blob/master/README.md)を使い、430MHz帯でチャットを行うことができるArduinoスケッチです。
 
+## 通信方式
+[プロトコル](https://github.com/w-ockham/LoRaBot/blob/master/Protocol.md)を参照
+
 ## ハードウェア
 
  * [Semtech SX1276/77/78/79](http://www.semtech.com/apps/product.php?pn=SX1276)を使ったボードで動作します。:
    * [BSFrance LoRa32u4](https://bsfrance.fr/lora-long-range/1311-BSFrance-LoRa32u4-1KM-Long-Range-Board-Based-Atmega32u4-433MHz-LoRA-RA02-Module.html)
 
-### Semtech SX1276/77/78/79 
+### Semtech SX1276/77/78/79
 
 | Semtech SX1276/77/78/79 | Arduino |
 | :---------------------: | :------:|
@@ -49,10 +52,6 @@
 
 ## 使い方
 2台のLoRa32u4に書き込みます。リモート側をモバイルバッテリ等に、ローカル側をスマホに接続します。  
-デフォルトではBotモードで起動します。クライアント側は以下のコマンドでノーマルモードにしてください。
-```sh
-set mode norm
-```
 USB端末ソフトからメッセージを送ると438.2MHzでLoRa変調でメッセージを送ります。  
 （保証認定を受け免許されるまでは必ずダミーロード等を使って実験して下さい）  
 デフォルトでは周波数438.2MHz、SF=10、BW=31.25kHz 出力20dBm(100mW)の設定になっています。
@@ -72,11 +71,6 @@ TXpower=20
 ```sh
  <相手局コールサイン> (<RSSI値>,<SNR値>,<周波数エラー値>)<: <受信したメッセージ>
  ```
-Bot側では送られて来たメッセージに受信時のRSSI(信号強度)、SNR、周波数エラー値を加えてオウム返しします。
-```sh
-JL1NIE/1>:こんにちはこれはテスト
-JL1NIE(-88,11.75,1928)<:Hi JL1NIE UR Rprt RSSI=-89,SNR=11.25,Ferr=-1984. UR Msg JL1NIE/1>:こんにちはこれはテスト.
-```
 
 ## コマンド
 ### 周波数の設定
@@ -118,16 +112,13 @@ JL1NIE(-88,11.75,1928)<:Hi JL1NIE UR Rprt RSSI=-89,SNR=11.25,Ferr=-1984. UR Msg 
 |8 | 250kHz |
 
 ### 動作モードの指定
-端末の動作モードを指定します。
-デフォルト値はBOTです。
-  スプリアス測定等で連続信号が必要な場合はCONTモードを使って下さい。
+端末の動作モードを指定します。スプリアス測定等で連続信号が必要な場合はCONTモードを使って下さい。
 ```sh
 set mode NORM
 ```
 |モード| 動作 |
 |:----:|:----:|
 |NORM | 通常モード|
-|BOT  | 送られたメッセージにRSSI/SNR等を付けて返すBOTになります|
 |CONT | 0fillされたパケット(255byte)を連続送信します|
 |VERB | 出力メッセージを冗長にします|
 
@@ -136,7 +127,6 @@ set mode NORM
 ```sh
 set call コールサイン
 ```
-
 ### リモート端末の設定
 LoRaでは送信側・受信側のSF/BW等のパラメータが合致していないと交信することができません。
 `rset`は自局と共に相手局側のパラメータを同時に変更するコマンドです。
