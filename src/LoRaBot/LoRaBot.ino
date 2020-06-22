@@ -1,6 +1,6 @@
 /*
  * LoRa Automatic Responder
- * 
+ *
  * by JL1NIE 2019/12/24
  */
  #include <SPI.h>
@@ -15,7 +15,7 @@ const long freq_high = 439e6;
 long frequency = 438.2E6;
 int power = 20;
 int spreadingFactor = 10;
-long bandWidthTable[] = { 7.8e3, 10.4e3, 15.6e3, 20.8e3, 31.25e3, 41.7e3, 62.5e3, 125e3, 250e3};
+long bandWidthTable[] = { 7.8e3, 10.4e3, 15.6e3, 20.8e3};
 int bandWidth = 6;
 int prlen = 8;
 bool crc = false;
@@ -40,7 +40,7 @@ void Initialize_LoRaParam() {
       Serial.println("LoRa init failed. Check your connections.");
       while (true);                       // if failed, do nothing
   }
-  bandWidth = 4;
+  bandWidth = 2;
   LoRa.setSignalBandwidth(bandWidthTable[bandWidth]);     // BW = 31.25kHz
   spreadingFactor = 10;
   LoRa.setSpreadingFactor(spreadingFactor);  // SF = 10
@@ -52,7 +52,7 @@ void Initialize_LoRaParam() {
   LoRa.setPreambleLength(prlen);
   syncWord = 0x12;
   LoRa.setSyncWord(syncWord);
-  mycall = "JL1NIE";
+  mycall = "";
 }
 
 void setup() {
@@ -110,7 +110,7 @@ void EmitRecvMsg(String call,String rssi,String snr,String ferr,String msg) {
   msg.replace("\"","\\\"");
   print("\"Mesg\":");
   print("\""+msg+"\"");
-  println("}");  
+  println("}");
 }
 
 void EmitProp(String prop,String val) {
@@ -126,7 +126,7 @@ void do_command(String buffer) {
 
   buffer.toUpperCase();
   buffer.trim();
-  
+
   int index = split(buffer, ' ', cmds);
   if ( index == 1 ) {
     print("{" + param("Type","Prop") + ",");
@@ -141,11 +141,11 @@ void do_command(String buffer) {
       LoRa.end();
       Initialize_LoRaParam();
       return;
-    } 
+    }
     EmitErr(buffer);
     return;
   }
-  
+
   if ( cmds[1] == "FREQ" ) {
     long freq = cmds[2].toInt();
     if ( freq >= freq_low && freq <= freq_high ) {
@@ -157,7 +157,7 @@ void do_command(String buffer) {
     }
     return;
   }
-  
+
   if ( cmds[1] == "PWR" ) {
     int p = cmds[2].toInt();
     if ( p >= 2 && p <= 20 ) {
@@ -169,7 +169,7 @@ void do_command(String buffer) {
     }
     return;
   }
-  
+
   if ( cmds[1] == "SF" ) {
     int sf = cmds[2].toInt();
     if ( sf >= 6 && sf <= 12 ) {
@@ -181,10 +181,10 @@ void do_command(String buffer) {
     }
     return;
   }
-  
+
   if ( cmds[1] == "BW" ) {
     int bw = cmds[2].toInt();
-    if ( bw >= 0 && bw <= 8 ) {
+    if ( bw >= 0 && bw <= 3 ) {
         bandWidth = bw;
         String bws = String(bandWidthTable[bw]);
         LoRa.setSignalBandwidth(bandWidthTable[bw]);
@@ -194,7 +194,7 @@ void do_command(String buffer) {
     EmitErr(cmds[2]);
     return;
   }
-     
+
   if ( cmds[1] == "CALL") {
     mycall = cmds[2];
     EmitProp("Call",cmds[2]);
@@ -229,6 +229,8 @@ void do_command(String buffer) {
 }
 
 void Send_Message(String message) {
+  if (mycall == "") return;
+
   LoRa.beginPacket();
   LoRa.print(mycall+">:");
   LoRa.print(message);
@@ -252,23 +254,23 @@ void loop() {
             if ( mode == MODE_CONT && line_buffer.indexOf("send") == 0) {
               for (int i = 0; i < 128; i++ ) {
                 LoRa.beginPacket();
-                for (int j = 0; j < 255; j++ ) 
+                for (int j = 0; j < 255; j++ )
                   LoRa.write(0);
                 LoRa.endPacket();
-                if ( Serial.available() ) 
+                if ( Serial.available() )
                     break;
                 EmitSendMsg(mycall,String(i) + "packet(s) sent.");
               };
               EmitSendMsg(mycall,"done.");
               LoRa.receive();
-            } else 
+            } else
             Send_Message(line_buffer);
           }
           line_buffer = "";
-       } else 
+       } else
        line_buffer += c;
   }
-  
+
   if (remote_set) {
    remote_set =false;
    do_command(remote_command);
@@ -283,27 +285,27 @@ void onReceive(int packetSize) {
   if (packetSize == 0) return;
 
   String incoming = "";
-  
+
   while (LoRa.available()) {
     incoming += (char)LoRa.read();
   }
-  
+
   String hiscall = incoming.substring(0,incoming.indexOf(">:"));
   String message = incoming.substring(incoming.indexOf(">:")+2);
-   
+
   if ( message.indexOf("rset") == 0) {
     remote_set = true;
     remote_command = message;
     return;
   };
-  
+
   String rssi = String(LoRa.packetRssi());
   String snr = String(LoRa.packetSnr());
   String ferr = String(LoRa.packetFrequencyError());
   String rprt = "RSSI=" + rssi + ",SNR=" + snr + ",Ferr=" + ferr;
- 
+
   EmitRecvMsg(hiscall,rssi,snr,ferr,message);
-    
+
   if ( mode == MODE_BOT && !hiscall.equalsIgnoreCase(mycall)) {
     if ( message.indexOf("RRR") >= 0) {
       Send_Message(hiscall + " 73");
@@ -312,5 +314,5 @@ void onReceive(int packetSize) {
     } else {
       Send_Message("Hi " + hiscall + " UR "+ rprt + ". Msg=" + message);
     }
-  }     
+  }
 }
